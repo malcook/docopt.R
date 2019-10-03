@@ -2,4 +2,8 @@
 ^\.Rproj\.user$
 ^\.travis\.yml$
 travis*
-^issues
+^issues*
+^appveyor\.yml$
+revdep
+^\.httr-oauth$
+README.md

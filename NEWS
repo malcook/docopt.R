@@ -1,3 +1,17 @@
+version 0.6.2
+- improved README.md thanks to @andreysmelter
+- improved error message (showing options) issue #24
+
+version 0.6.1
+- changed methods dependency to import (issue #35, thanks to @eddelbuettel). Should
+have be done earlier, but did work with R version <= 3.3
+
+version 0.6
+- removed stringr dependency
+
+version 0.4.5
+- Fixed single argument which embed a space (issue #11, thanks to @malcook)
+
 version 0.4.4
 - Fixed arguments which embed a space (issue #11, thanks to @jennybc)
 - Added `print` method for docopt (issue @12, thanks to @eddelbuettel)

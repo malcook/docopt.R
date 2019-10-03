@@ -33,19 +33,20 @@
 #' @return named list with all parsed options, arguments and commands.
 #' @references \url{http://docopt.org},
 #' @export
-#' @import methods stringr
+#' @import methods
 docopt <- function( doc, args=commandArgs(TRUE), name=NULL, help=TRUE, version=NULL
                   , strict=FALSE, strip_names=!strict, quoted_args=!strict
                   ){
-  # littler compatibility - map argv vector to args
-  if (exists("argv", where = .GlobalEnv, inherits = FALSE)) {
-    args = get("argv", envir = .GlobalEnv);
+  
+  if (missing(args)) {
+    # littler compatibility - map argv vector to args
+    if (exists("argv", where = .GlobalEnv, inherits = FALSE)) {
+      args = get("argv", envir = .GlobalEnv);
+    } else {
+			args <- quote_spaced(args)
+		}
   }
-  # quote arguments containing a space. commandArgs removes quotes!
-  if (length(args) > 1) {
-    args <- quote_spaced(args)
-  }
-
+  #browser()
   args <- str_c(args, collapse=" ")
   usage <- printable_usage(doc, name)
   pot_options <- parse_doc_options(doc)
@@ -72,7 +73,6 @@ docopt <- function( doc, args=commandArgs(TRUE), name=NULL, help=TRUE, version=N
     dict <- list()
     class(dict) <- c("docopt", "list")
     
-    #for(kv in c(pot_options$options, options, pattern$flat(), m$collected)){
     for(kv in c(pot_options$options, options, pot_arguments, arguments)){
       value <- kv$value
       dict[kv$name()] <- list(value)
@@ -83,7 +83,8 @@ docopt <- function( doc, args=commandArgs(TRUE), name=NULL, help=TRUE, version=N
     }
     return(dict)
   }
-  stop(paste(usage, collapse="\n  "))
+  stop(doc, call. = FALSE)
+  #stop(paste("\n",usage, collapse="\n  "), call. = FALSE)
 }
          
 # print help
@@ -108,22 +109,22 @@ extras <- function(help, version=NULL, options, doc){
   if (help && any(names(opts) %in% c("-h","--help"))){
     help <- str_replace_all(doc, "^\\s*|\\s*$", "")
     cat(help,"\n")
-    if (interactive()) stop() else {
+    if (interactive()) stop(call. = FALSE) else {
       quit(save="no")
     }
   }
   if (!is.null(version) && any(names(opts) %in% "--version")){
     cat(version)
-    if (interactive()) stop() else quit(save="no")
+    if (interactive()) stop(call.  = FALSE) else quit(save="no")
   }
 }
 
 printable_usage <- function(doc, name){
-  usage_split <- stringr::str_split(doc, stringr::regex("(?i)usage:\\s*"))[[1]]
+  usage_split <- str_split(doc, "(?i)usage:\\s*")[[1]]
   if (length(usage_split) < 2){
-    stop("'usage:' (case-insensitive) not found")
+    stop("'usage:' (case-insensitive) not found", call. = FALSE)
   } else if (length(usage_split) > 2){
-    stop('More than one "usage:" (case-insensitive).')
+    stop('More than one "usage:" (case-insensitive).', call. = FALSE)
   }
   usage <- str_split(usage_split[2], "\n\\s*")[[1]]
   firstword <- str_extract(usage, "^\\w+")
@@ -147,7 +148,7 @@ formal_usage <- function(printable_usage){
 
 quote_spaced <- function(x){
   ifelse( str_detect(x, "\\s")
-        , sQuote(x)
+        , shQuote(x)
         , x
   )
 }
